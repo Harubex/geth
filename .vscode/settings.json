@@ -1,0 +1,53 @@
+// Place your settings in this file to overwrite the default settings
+{
+    "editor.fontSize": 17,
+    "editor.fontFamily": "Consolas",
+    "editor.formatOnSave": false,
+    "typescript.referencesCodeLens.enabled": true,
+    "files.exclude": {
+        "**/*.js": { "when": "$(basename).ts" },
+        "**/*.js.map": true,
+        "node_modules": true,
+        ".gitignore": true,
+        "*.db-journal": true,
+        "yarn.lock": true,
+        "package-lock.json": true
+    },
+    "files.autoSave": "off",
+    "files.autoSaveDelay": 100,
+    "[typescript]": {
+        "editor.formatOnSave": false,
+        "editor.formatOnPaste": false,
+        "editor.cursorBlinking": "smooth"
+    },
+    "git.autorefresh": true,
+    "git.autofetch": true,
+    "git.enabled": true,
+    "git.confirmSync": true,
+    "[json]": {
+        "editor.quickSuggestions": {
+            "comments": true,
+            "strings": true,
+            "other": true
+        },
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": true,
+        "editor.tabSize": 4
+    },
+    "editor.detectIndentation": true,
+    "editor.tabSize": 4,
+    "editor.codeLens": true,
+    "eslint.packageManager": "yarn",
+    "eslint.enable": false,
+    "eslint.run": "onType",
+    "diffEditor.renderSideBySide": true,
+    "debug.allowBreakpointsEverywhere": true,
+    "debug.inlineValues": true,
+    "editor.minimap.enabled": false,
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "tslint.enable": true,
+    "typescript.preferences.quoteStyle": "double",
+    "typescript.preferences.importModuleSpecifier": "auto",
+    "javascript.preferences.quoteStyle": "double",
+    "javascript.preferences.importModuleSpecifier": "auto"
+}

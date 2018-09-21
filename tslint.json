@@ -1,0 +1,128 @@
+{
+    "extends": "tslint:recommended",
+    "rules": {
+        "max-line-length": [
+            true, 
+            {
+                "limit": 150, 
+                "ignore-pattern": "^import |^export {(.*?)}|class [a-zA-Z]+ implements |//"
+            }
+        ],
+        "interface-over-type-literal": false,
+        "new-parens": true,
+        "no-arg": true,
+        "no-bitwise": false,
+        "arrow-parens": true,
+        "interface-name": false,
+        "no-duplicate-super": true,
+        "no-duplicate-imports": true,
+        "no-duplicate-switch-case": true,
+        "no-var-keyword": true,
+        "no-conditional-assignment": false,
+        "no-consecutive-blank-lines": true,
+        "array-type": [
+            true,
+            "array"
+        ],
+        "trailing-comma": false,
+        "object-literal-sort-keys": false,
+        "no-console": {
+            "severity": "warning",
+            "options": [
+                "debug",
+                "info",
+                "log",
+                "time",
+                "timeEnd",
+                "trace"
+            ]
+        },
+        "indent": [
+            true, 
+            "spaces"
+        ],
+        "ordered-imports": false,
+        "no-eval": true,
+        "no-internal-module": true,
+        "no-trailing-whitespace": true,
+        "no-unsafe-finally": true,
+        "no-for-in-array": false,
+        "forin": false,
+        "member-ordering": [
+            true,
+            {
+                "order": [
+                    "public-static-field",
+                    "public-instance-field",
+
+                    "protected-static-field",
+                    "protected-instance-field",
+
+                    "private-static-field",
+                    "private-instance-field",
+
+                    "public-constructor",
+                    "protected-constructor",
+                    "private-constructor",
+
+                    "public-static-method",
+                    "public-instance-method",
+
+                    "protected-static-method",
+                    "protected-instance-method",
+
+                    "private-static-method",
+                    "private-instance-method"
+                ]
+            }
+        ],
+        "one-line": [
+            true,
+            "check-open-brace",
+            "check-whitespace"
+        ],
+        "quotemark": [
+            true,
+            "double"
+        ],
+        "semicolon": [
+            true,
+            "always"
+        ],
+        "curly": true,
+        "triple-equals": [
+            true,
+            "allow-null-check"
+        ],
+        "typedef-whitespace": [
+            true,
+            {
+                "call-signature": "nospace",
+                "index-signature": "nospace",
+                "parameter": "nospace",
+                "property-declaration": "nospace",
+                "variable-declaration": "nospace"
+            }
+        ],
+        "ban-types": false,
+        "variable-name": [
+            true,
+            "ban-keywords"
+        ],
+        "whitespace": [
+            true,
+            "check-branch",
+            "check-decl",
+            "check-operator",
+            "check-separator",
+            "check-type"
+        ]
+    },
+    "jsRules": {
+        "triple-equals": [
+            true,
+            "allow-null-check"
+        ]
+    },
+    "defaultSeverity": "warning"
+}

@@ -1,0 +1,20 @@
+{
+    "arrowParens": "always",
+    "bracketSpacing": true,
+    "cursorOffset": 0,
+    "parser": "typescript",
+    "semi": true,
+    "printWidth": 120,
+    "singleQuote": false,
+    "useTabs": false,
+    "tabWidth": 4,
+    "trailingComma": "none",
+    "proseWrap": "always",
+    "requirePragma": false,
+    "overrides": [
+        {
+            "files": [".prettierrc", "package.json"],
+            "options": { "parser": "json" }
+        }
+    ]
+}

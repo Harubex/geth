@@ -1,0 +1,35 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": false,
+        "allowSyntheticDefaultImports": false,
+        "allowJs": false,
+        "keyofStringsOnly": true,
+        "pretty": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "alwaysStrict": true,
+        "baseUrl": "./src",
+        "sourceMap": false,
+        "preserveConstEnums": true,
+        "removeComments": true,
+        "target": "es6"
+    },
+    "files": [
+        "src/main.ts"
+    ],
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts",
+        "src/interface"
+    ]
+}

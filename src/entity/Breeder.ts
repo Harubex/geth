@@ -35,7 +35,7 @@ export default class Breeder extends LivingObject<StructureSpawn> {
     }
 
     public run() {
-        if (this.canCreateCreep([MOVE, WORK, MOVE, CARRY])) {
+        if (Object.keys(Game.creeps).length < 15 && this.canCreateCreep([MOVE, WORK, MOVE, CARRY])) {
             this.createCreep([MOVE, WORK, MOVE, CARRY]);
         }
     }

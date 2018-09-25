@@ -1,9 +1,16 @@
 import LivingObject from "abstract/LivingObject";
 import Carry from "util/Carry";
 import EnergySource from "entity/EnergySource";
+import Debug from "util/Debug";
 import { contains } from "lodash";
 
+const debug = new Debug("creeper");
+
 export default class Creeper extends LivingObject<Creep> {
+
+    public get name(): string {
+        return this.instance.name;
+    }
 
     /**
      * The current carry for this creep.
@@ -18,6 +25,18 @@ export default class Creeper extends LivingObject<Creep> {
 
     public get position(): RoomPosition {
         return this.instance.pos;
+    }
+
+    private get controllerTransfer(): boolean {
+        const memory = this.instance.memory as { controllerTransfer: boolean };
+        if (memory.controllerTransfer === undefined) {
+            memory.controllerTransfer = false;
+        }
+        return memory.controllerTransfer;
+    }
+
+    private set controllerTransfer(value: boolean) {
+        (this.instance.memory as { controllerTransfer: boolean }).controllerTransfer = value;
     }
 
     constructor(creep: Creep, memory?: CreepMemory) {
@@ -37,14 +56,21 @@ export default class Creeper extends LivingObject<Creep> {
         }
         else {
             const spawn = this.findNearestStructure(STRUCTURE_SPAWN) as StructureSpawn;
-            if (spawn !== null && spawn.energy < spawn.energyCapacity) {
+            if (!this.controllerTransfer && spawn !== null && spawn.energy < spawn.energyCapacity) {
                 if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(spawn);
                 }
             } else {
                 const controller = this.findNearestStructure(STRUCTURE_CONTROLLER) as StructureController;
-                if (controller !== null && creep.transfer(controller, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(controller);
+                debug.info(`Controller position: (${controller.pos.x}, ${controller.pos.y}).`);
+                this.controllerTransfer = true;
+                if (controller !== null) {
+                    const xferRes = creep.transfer(controller, RESOURCE_ENERGY);
+                    if (xferRes === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(controller);
+                    } else if (xferRes === ERR_NOT_ENOUGH_ENERGY) {
+                        this.controllerTransfer = false;
+                    }
                 }
             }
         }

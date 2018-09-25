@@ -6,13 +6,10 @@ const screeps = require("gulp-screeps");
 const tslint = require("gulp-tslint");
 const del = require("del");
 const ts = require("gulp-typescript");
-const uglify = require("gulp-uglify");
+const minify = require("gulp-minify");
 const args = require("yargs").argv;
 
 const tsProject = ts.createProject("tsconfig.json");
-if (args.minify) { // uglify doesn't support es6 syntax.
-    tsProject.options.target = "es5";
-}
 const destPath = path.join(process.env.LOCALAPPDATA, "/Screeps/scripts/screeps.com/default");
 const destSrc = path.join(destPath, "/**/*");
 let upload = false;
@@ -45,7 +42,11 @@ const moveFn = () => {
     })); 
     
     if (args.minify) {
-        stream = stream.pipe(uglify()).on("error", console.log);
+        stream = stream.pipe(minify({
+            ext: {
+                min: ".js"
+            }
+        }));
     }
     stream.pipe(gulp.dest(destPath));
     if (upload) {

@@ -4,7 +4,7 @@ import Profile from "util/Profiler";
 import Debug from "util/Debug";
 import { sortBy, uniqueId } from "lodash";
 
-const debug = new Debug("entity/breeder");
+const debug = new Debug("breeder");
 
 /**
  * Wraps and extends spawn objects.
@@ -26,7 +26,7 @@ export default class Breeder extends LivingObject<StructureSpawn> {
     }
 
     public createCreep(body: BodyPartConstant[], name?: string, memory?: CreepMemory): Creeper {
-        const creepName = name || uniqueId();
+        const creepName = name || uniqueId(String(Game.time));
         const statusCode = this.instance.spawnCreep(sortBy(body), creepName, { memory });
         if (statusCode !== OK) {
             throw new Error(`Unable to create creep (error code ${statusCode}).`);
@@ -35,8 +35,12 @@ export default class Breeder extends LivingObject<StructureSpawn> {
     }
 
     public run() {
-        if (Object.keys(Game.creeps).length < 15 && this.canCreateCreep([MOVE, WORK, MOVE, CARRY])) {
-            this.createCreep([MOVE, WORK, MOVE, CARRY]);
+        if (this.shouldSpawnCreeps() && this.canCreateCreep([MOVE, CARRY, WORK, CARRY])) {
+            this.createCreep([MOVE, MOVE, WORK, CARRY]);
         }
+    }
+
+    public shouldSpawnCreeps(): boolean {
+        return Object.keys(Game.creeps).length < 5;
     }
 }

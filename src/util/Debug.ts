@@ -61,7 +61,23 @@ export default class Debug {
             }
         }
         // tslint:disable-next-line:no-console
-        console.log(`(<span style="color: ${Debug.colorHash(context)}">${context}</span>):`, message);
+        console.log(`(<span style="color: ${Debug.hslHash(context)}">${context}</span>):`, message);
+    }
+
+    private static hslHash(input: string): string {
+        if (!Memory.colorCache) {
+            Memory.colorCache = {};
+        }
+        if (!Memory.colorCache[input]) {
+            let hash = 0;
+            for (let i = 0; i < input.length; i++) {
+                hash = (hash << 5) - hash + input.charCodeAt(i) | 0;
+            }
+            const hsl = `hsl(${100 + (hash % 100)}, ${90 + (hash % 10)}%, ${40 + (hash % 10)}%)`;
+            logger.info(`New color created for namespace "${input}": "${hsl}" (hash: ${hash})`);
+            Memory.colorCache[input] = hsl;
+        }
+        return Memory.colorCache[input];
     }
 
     /**
@@ -102,7 +118,7 @@ export default class Debug {
                 value = JSON.stringify(value, null, 4);
             }
         }
-        return `${message} ${escape(value.toString())}`;
+        return `${message}, ${escape(value.toString())}`;
     }
 }
 

@@ -4,20 +4,29 @@ import Settings from "geth.config";
 import Breeder from "entity/Breeder";
 import Creeper from "entity/Creeper";
 import Debug from "util/Debug";
+import Event from "util/Event";
+import EventType from "util/EventType";
 
 const debug = new Debug("main/loop");
 let initialized = false;
 
 const breeders: Breeder[] = [];
+const creepers: Creeper[] = [];
+
+Event.addListener(EventType.creepSpawned, (creeper: Creeper) => {
+    debug.log(`A new creep was born. His name was ${creeper.name}.`);
+    creepers.push(creeper);
+});
 
 let update: Function = () => {
     breeders.forEach((b) => b.run());
-    for (const name in Game.creeps) {
-        new Creeper(Game.creeps[name]).run();
-    }
+    creepers.forEach((c) => c.run());
 };
 
 function initialize(): boolean {
+    for (const name in Game.creeps) {
+        creepers.push(new Creeper(Game.creeps[name]));
+    }
     for (const name in Game.spawns) {
         breeders.push(new Breeder(Game.spawns[name]));
     }
@@ -28,7 +37,7 @@ function initialize(): boolean {
     return true;
 }
 
-export async function loop() {
+export function loop() {
     if (!initialized) {
         initialized = initialize();
     }

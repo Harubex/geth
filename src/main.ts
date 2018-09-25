@@ -6,6 +6,7 @@ import Creeper from "entity/Creeper";
 import Debug from "util/Debug";
 import Event from "util/Event";
 import EventType from "util/EventType";
+import { remove } from "lodash";
 
 const debug = new Debug("main/loop");
 let initialized = false;
@@ -14,8 +15,13 @@ const breeders: Breeder[] = [];
 const creepers: Creeper[] = [];
 
 Event.addListener(EventType.creepSpawned, (creeper: Creeper) => {
-    debug.log(`A new creep was born. His name was ${creeper.name}.`);
+    debug.log(`A new creep was born. His name is ${creeper.name}.`);
     creepers.push(creeper);
+});
+
+Event.addListener(EventType.creepDead, (creeper) => {
+    debug.log(`A creep has died. His name was ${creeper.name}.`);
+    remove(creepers, (c) => c.name === creeper.name);
 });
 
 let update: Function = () => {

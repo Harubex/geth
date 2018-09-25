@@ -1,10 +1,15 @@
 import LivingObject from "abstract/LivingObject";
 import Carry from "util/Carry";
-import EnergySource from "entity/EnergySource";
-import Debug from "util/Debug";
 import { contains } from "lodash";
+import Role from "abstract/Role";
+import GathererRole from "role/GathererRole";
+import Event from "util/Event";
+import EventType from "util/EventType";
 
-const debug = new Debug("creeper");
+export interface CreeperMemory extends CreepMemory {
+    role: string;
+    depositing: boolean;
+}
 
 export default class Creeper extends LivingObject<Creep> {
 
@@ -27,58 +32,48 @@ export default class Creeper extends LivingObject<Creep> {
         return this.instance.pos;
     }
 
-    private get controllerTransfer(): boolean {
-        const memory = this.instance.memory as { controllerTransfer: boolean };
-        if (memory.controllerTransfer === undefined) {
-            memory.controllerTransfer = false;
-        }
-        return memory.controllerTransfer;
+    public get memory(): CreeperMemory {
+        return this.instance.memory as CreeperMemory;
     }
 
-    private set controllerTransfer(value: boolean) {
-        (this.instance.memory as { controllerTransfer: boolean }).controllerTransfer = value;
+    public set memory(value: CreeperMemory) {
+        (this.instance.memory as CreeperMemory) = value;
     }
 
-    constructor(creep: Creep, memory?: CreepMemory) {
+    private role: Role;
+
+    constructor(creep: Creep, memory?: CreeperMemory) {
         super(creep);
         if (memory) {
             creep.memory = memory;
         }
+        this.role = new GathererRole(this);
     }
 
     public run(): void {
-        const creep = this.instance;
-        const source = EnergySource.nearest(this);
-        if (creep.carry.energy < creep.carryCapacity) {
-            if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(source);
-            }
-        }
-        else {
-            const spawn = this.findNearestStructure(STRUCTURE_SPAWN) as StructureSpawn;
-            if (!this.controllerTransfer && spawn !== null && spawn.energy < spawn.energyCapacity) {
-                if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(spawn);
-                }
-            } else {
-                const controller = this.findNearestStructure(STRUCTURE_CONTROLLER) as StructureController;
-                debug.info(`Controller position: (${controller.pos.x}, ${controller.pos.y}).`);
-                this.controllerTransfer = true;
-                if (controller !== null) {
-                    const xferRes = creep.transfer(controller, RESOURCE_ENERGY);
-                    if (xferRes === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(controller);
-                    } else if (xferRes === ERR_NOT_ENOUGH_ENERGY) {
-                        this.controllerTransfer = false;
-                    }
-                }
-            }
+        this.role.run();
+        if (this.instance.ticksToLive <= 1) {
+            Event.dispatch(EventType.creepDead, this);
         }
     }
 
-    private findNearestStructure(...structureTypes: StructureConstant[]): AnyStructure {
+    public harvest(source: Source | Mineral<MineralConstant>): CreepHarvestReturnCode {
+        return this.instance.harvest(source);
+    }
+
+    public transfer(target: Creep | Structure, resourceType: ResourceConstant, amount?: number): ScreepsReturnCode {
+        return this.instance.transfer(target, resourceType, amount);
+    }
+
+    public moveTo(position: RoomPosition | { pos: RoomPosition }, options?: MoveToOpts) {
+        return this.instance.moveTo(position, options);
+    }
+
+    public findNearestStructure(...structureTypes: StructureConstant[]): AnyStructure {
         return this.instance.pos.findClosestByPath(FIND_STRUCTURES as FIND_STRUCTURES, {
             filter: (structure: AnyStructure) => contains(structureTypes, structure.structureType)
         });
     }
 }
+
+export type CreepHarvestReturnCode = CreepActionReturnCode | ERR_NOT_FOUND | ERR_NOT_ENOUGH_RESOURCES;

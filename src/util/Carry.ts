@@ -27,6 +27,10 @@ export default class Carry {
         return total / this._capacity;
     }
 
+    public get full(): boolean {
+        return this.percent === 1;
+    }
+
     private _current: StoreDefinition;
     private _capacity: number;
 

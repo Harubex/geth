@@ -1,5 +1,5 @@
 import LivingObject from "abstract/LivingObject";
-import Creeper from "entity/Creeper";
+import Creeper, { CreeperMemory } from "entity/Creeper";
 import Profile from "util/Profiler";
 import Debug from "util/Debug";
 import { sortBy, uniqueId } from "lodash";
@@ -25,7 +25,7 @@ export default class Breeder extends LivingObject<StructureSpawn> {
         return this.instance.spawnCreep(body, uniqueId(), {dryRun: true}) === OK;
     }
 
-    public createCreep(body: BodyPartConstant[], name?: string, memory?: CreepMemory): Creeper {
+    public createCreep(body: BodyPartConstant[], name?: string, memory?: CreeperMemory): Creeper {
         const creepName = name || uniqueId(String(Game.time));
         const statusCode = this.instance.spawnCreep(sortBy(body), creepName, { memory });
         if (statusCode !== OK) {

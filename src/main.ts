@@ -30,6 +30,9 @@ let update: Function = () => {
 };
 
 function initialize(): boolean {
+    if (Object.keys(Game.spawns).length === 0) {
+        return false;
+    }
     for (const name in Game.creeps) {
         creepers.push(new Creeper(Game.creeps[name]));
     }
@@ -39,7 +42,6 @@ function initialize(): boolean {
     if (Settings.enableProfiling) {
         update = wrap(update);
     }
-
     return true;
 }
 

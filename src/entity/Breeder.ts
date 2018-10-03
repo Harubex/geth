@@ -3,6 +3,8 @@ import Creeper, { CreeperMemory } from "entity/Creeper";
 import Profile from "util/Profiler";
 import Debug from "util/Debug";
 import { sortBy, uniqueId } from "lodash";
+import Events from "util/Event";
+import EventType from "util/EventType";
 
 const debug = new Debug("breeder");
 
@@ -35,8 +37,9 @@ export default class Breeder extends LivingObject<StructureSpawn> {
     }
 
     public run() {
-        if (this.shouldSpawnCreeps() && this.canCreateCreep([MOVE, CARRY, WORK, CARRY])) {
-            this.createCreep([MOVE, MOVE, WORK, CARRY]);
+        const creepBody = [MOVE, CARRY, WORK, CARRY];
+        if (this.shouldSpawnCreeps() && this.canCreateCreep(creepBody)) {
+            Events.dispatch(EventType.creepSpawned, this.createCreep(creepBody));
         }
     }
 

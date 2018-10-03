@@ -7,7 +7,7 @@ export default abstract class GameObject<T extends RoomObject> {
      * A reference to this object's in game entity.
      */
     protected get instance(): T {
-        return this._instance;
+        return Game.getObjectById((this._instance as any).id);
     }
 
     private _instance: T;

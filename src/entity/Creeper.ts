@@ -12,10 +12,13 @@ const debug = new Debug("creeper");
 export interface CreeperMemory extends CreepMemory {
     role: string;
     depositing: boolean;
+
+    sourceId: string;
 }
 
 export default class Creeper extends LivingObject<Creep> {
 
+    // #region Properties
     public get name(): string {
         return this.instance.name;
     }
@@ -44,6 +47,7 @@ export default class Creeper extends LivingObject<Creep> {
     }
 
     private role: Role;
+    // #endregion
 
     constructor(creep: Creep, memory?: CreeperMemory) {
         super(creep);

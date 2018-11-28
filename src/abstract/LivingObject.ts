@@ -11,7 +11,7 @@ export interface LivingObjectType extends IdentifiableRoomObject {
 /**
  * Abstract parent for all living in game objects (things that can run, things that can die).
  */
-export default abstract class LivingObject<T extends LivingObjectType> extends GameObject<T> implements Hittable, Runnable {
+export default abstract class LivingObject<T extends LivingObjectType, U = void, V = void> extends GameObject<T> implements Hittable, Runnable<U, V> {
 
     /**
      * A structure containing life totals and metrics for this entity.
@@ -23,5 +23,5 @@ export default abstract class LivingObject<T extends LivingObjectType> extends G
     /**
      * The action to take for the current game tick.
      */
-    public abstract run(): void;
+    public abstract run(arg: U): V;
 }

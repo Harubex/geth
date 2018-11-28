@@ -39,7 +39,6 @@ function initialize(): boolean {
     if (Settings.enableProfiling) {
         update = wrap(update);
     }
-
     return true;
 }
 

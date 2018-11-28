@@ -20,7 +20,7 @@ export default class Debug {
 
     private disableCache: boolean;
 
-    constructor(context: string, styles: StyleRules = {}, disableCache: boolean = false) {
+    constructor(context: string, disableCache: boolean = true, styles: StyleRules = {}) {
         this.context = context;
         this._styles = styles;
         this.disableCache = disableCache;
@@ -74,8 +74,8 @@ export default class Debug {
                 hash = (hash << 5) - hash + input.charCodeAt(i) | 0;
             }
             const hsl = `hsl(${100 + (hash % 100)}, ${90 + (hash % 10)}%, ${40 + (hash % 10)}%)`;
-            logger.info(`New color created for namespace "${input}": "${hsl}" (hash: ${hash})`);
             Memory.colorCache[input] = hsl;
+            logger.info(`New color created for namespace "${input}": "${hsl}" (hash: ${hash})`);
         }
         return Memory.colorCache[input];
     }

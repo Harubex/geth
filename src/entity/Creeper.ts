@@ -2,9 +2,12 @@ import LivingObject from "abstract/LivingObject";
 import Carry from "util/Carry";
 import { contains } from "lodash";
 import Role from "abstract/Role";
-import GathererRole from "role/GathererRole";
+import HarvesterRole from "role/HarvesterRole";
 import Event from "util/Event";
 import EventType from "util/EventType";
+import Debug from "util/Debug";
+
+const debug = new Debug("creeper");
 
 export interface CreeperMemory extends CreepMemory {
     role: string;
@@ -47,7 +50,7 @@ export default class Creeper extends LivingObject<Creep> {
         if (memory) {
             creep.memory = memory;
         }
-        this.role = new GathererRole(this);
+        this.role = new HarvesterRole(this);
     }
 
     public run(): void {
@@ -59,6 +62,18 @@ export default class Creeper extends LivingObject<Creep> {
 
     public harvest(source: Source | Mineral<MineralConstant>): CreepHarvestReturnCode {
         return this.instance.harvest(source);
+    }
+
+    public unload(resource: ResourceConstant, amount?: number): CreepDropCode {
+        const carry = this.carry;
+        if (!amount || amount > carry.capacity) {
+            amount = carry.current[resource];
+        }
+        return this.instance.drop(resource, amount);
+    }
+
+    public pickup(target: Resource<ResourceConstant>): CreepActionReturnCode | ERR_FULL {
+        return this.instance.pickup(target);
     }
 
     public transfer(target: Creep | Structure, resourceType: ResourceConstant, amount?: number): ScreepsReturnCode {
@@ -76,4 +91,5 @@ export default class Creeper extends LivingObject<Creep> {
     }
 }
 
+export type CreepDropCode = OK | ERR_NOT_OWNER | ERR_BUSY | ERR_NOT_ENOUGH_RESOURCES;
 export type CreepHarvestReturnCode = CreepActionReturnCode | ERR_NOT_FOUND | ERR_NOT_ENOUGH_RESOURCES;

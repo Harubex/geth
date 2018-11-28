@@ -1,9 +1,9 @@
-import GameObject from "abstract/GameObject";
+import GameObject, { IdentifiableRoomObject } from "abstract/GameObject";
 import Hittable from "interface/Hittable";
 import Runnable from "interface/Runnable";
 import Hitpoints from "util/Hitpoints";
 
-export interface LivingObjectType extends RoomObject {
+export interface LivingObjectType extends IdentifiableRoomObject {
     hits: number;
     hitsMax: number;
 }

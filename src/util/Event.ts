@@ -1,4 +1,3 @@
-import Runnable from "interface/Runnable";
 import Creeper from "entity/Creeper";
 import Debug from "util/Debug";
 import Breeder from "entity/Breeder";
@@ -6,49 +5,57 @@ import { CpuEvent, CreepEvent, SpawnEvent } from "util/EventType";
 
 const debug = new Debug("events");
 
-export default class Events implements Runnable {
+export default class Events { // TODO: add events to memory if possible.
 
-    private static eventQueue: { name: string, data: object }[] = [];
-    private static listeners: { [eventName: string]: ((data: any) => void)[] } = {};
+    private static eventQueue: { event: string, data: object, delay: number }[] = [];
+    private static listeners: { [event: string]: ((data: any) => void)[] } = {};
 
     // #region Dispatch overloads.
-    public static dispatch(eventName: SpawnEvent, spawner: Breeder): void;
-    public static dispatch(eventName: CreepEvent, creeper: Creeper): void;
-    public static dispatch(eventName: CpuEvent, cpu: CPU): void;
+    public static dispatch(event: SpawnEvent, spawner: Breeder, delay?: number): void;
+    public static dispatch(event: CreepEvent, creeper: Creeper): void;
+    public static dispatch(event: CreepEvent, cb: () => Creeper, delay: number): void;
+    public static dispatch(event: CpuEvent, cpu: CPU, delay?: number): void;
     // #endregion
 
-    public static dispatch(eventName: string, data: object): void {
-        Events.eventQueue.push({
-            name: eventName,
-            data
-        });
+    public static dispatch(event: string, data: any, delay: number = 0): void {
+        debug.info(`Queuing event ${event} with ${delay} tick delay`);
+        Events.eventQueue.push({ event, data, delay: Game.time + delay });
     }
 
     // #region Dispatch overloads.
-    public static addListener(eventName: SpawnEvent, listener: (spawner: Breeder) => void): void;
-    public static addListener(eventName: CreepEvent, listener: (creeper: Creeper) => void): void;
-    public static addListener(eventName: CpuEvent, listener: (cpu: CPU) => void): void;
+    public static addListener(event: SpawnEvent, listener: (spawner: Breeder) => void): void;
+    public static addListener(event: CreepEvent, listener: (creeper: Creeper) => void): void;
+    public static addListener(event: CpuEvent, listener: (cpu: CPU) => void): void;
     // #endregion
-    public static addListener(eventName: string, listener: (data: any) => void): void {
-        if (!Events.listeners[eventName]) {
-            Events.listeners[eventName] = [];
+    public static addListener(event: string, listener: (data: any) => void): void {
+        debug.info(`Listener added for event ${event}.`);
+        if (!Events.listeners[event]) {
+            Events.listeners[event] = [];
         }
-        Events.listeners[eventName].push(listener);
+        Events.listeners[event].push(listener);
     }
 
-    public run(): void {
+    public static run(): void {
         const events = Events.eventQueue;
         Events.eventQueue = [];
         if (events.length > 0) {
             debug.log(`Processing events: ${events.length} ${Events.eventQueue.length}`);
         }
-        events.forEach((event) => {
-            debug.log(event.name, (Events.listeners[event.name] || []).length);
-            if (Events.listeners[event.name]) {
-                Events.listeners[event.name].forEach((listener) => {
-                    debug.log(`Calling listener for ${event.name} at game time ${Game.time}.`);
-                    listener(event.data);
-                });
+        events.forEach(({event, data, delay}) => {
+            debug.log(event, (Events.listeners[event] || []).length);
+            if (Events.listeners[event]) {
+                if (Game.time < delay) {
+                    debug.info(`Readding event - time ${Game.time} of ${delay}`);
+                    Events.eventQueue.push({event, data, delay});
+                } else {
+                    Events.listeners[event].forEach((listener) => {
+                        debug.log(`Calling listener for ${event} at game time ${Game.time}.`);
+                        if (typeof (data) === "function") {
+                            data = data();
+                        }
+                        listener(data);
+                    });
+                }
             }
         });
     }

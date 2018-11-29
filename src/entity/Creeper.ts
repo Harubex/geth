@@ -2,7 +2,7 @@ import LivingObject from "abstract/LivingObject";
 import Carry from "util/Carry";
 import { contains } from "lodash";
 import Role from "abstract/Role";
-import HarvesterRole from "role/HarvesterRole";
+import RoleType from "util/RoleType";
 import Event from "util/Event";
 import EventType from "util/EventType";
 import Debug from "util/Debug";
@@ -11,9 +11,9 @@ const debug = new Debug("creeper");
 
 export interface CreeperMemory extends CreepMemory {
     role: string;
-    depositing: boolean;
+    depositing?: boolean;
 
-    sourceId: string;
+    sourceId?: string;
 }
 
 export default class Creeper extends LivingObject<Creep> {
@@ -39,6 +39,10 @@ export default class Creeper extends LivingObject<Creep> {
     }
 
     public get memory(): CreeperMemory {
+        if (!this.instance.memory) {
+            this.instance.memory = {};
+            debug.warn(`Memory blank for creep with name ${this.instance!.name}`);
+        }
         return this.instance.memory as CreeperMemory;
     }
 
@@ -46,15 +50,20 @@ export default class Creeper extends LivingObject<Creep> {
         (this.instance.memory as CreeperMemory) = value;
     }
 
-    private role: Role;
+    private get role(): Role {
+        return RoleType.table[this.memory.role](this);
+    }
+
     // #endregion
 
     constructor(creep: Creep, memory?: CreeperMemory) {
         super(creep);
-        if (memory) {
-            creep.memory = memory;
+        memory = memory ? memory : Game.creeps[creep.name].memory as CreeperMemory;
+        if (!memory.role) {
+            memory.role = "harvester";
         }
-        this.role = new HarvesterRole(this);
+        debug.info(`Setting creep role to ${memory.role}.`);
+        creep.memory = memory;
     }
 
     public run(): void {
@@ -66,6 +75,17 @@ export default class Creeper extends LivingObject<Creep> {
 
     public harvest(source: Source | Mineral<MineralConstant>): CreepHarvestReturnCode {
         return this.instance.harvest(source);
+    }
+
+    public withdraw(target: Structure<StructureConstant> | Tombstone, resourceType: ResourceConstant, amount?: number): ScreepsReturnCode {
+        return this.instance.withdraw(target, resourceType, amount);
+    }
+
+    public upgrade(target?: StructureController): ScreepsReturnCode {
+        if (!target) {
+            return this.upgrade(this.instance.room.controller);
+        }
+        return this.instance.upgradeController(target);
     }
 
     public unload(resource: ResourceConstant, amount?: number): CreepDropCode {

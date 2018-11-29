@@ -19,7 +19,7 @@ Event.addListener(EventType.creepSpawned, (creeper: Creeper) => {
     creepers.push(creeper);
 });
 
-Event.addListener(EventType.creepDead, (creeper) => {
+Event.addListener(EventType.creepDead, (creeper: Creeper) => {
     debug.log(`A creep has died. His name was ${creeper.name}.`);
     remove(creepers, (c) => c.name === creeper.name);
 });
@@ -27,6 +27,7 @@ Event.addListener(EventType.creepDead, (creeper) => {
 let update: Function = () => {
     breeders.forEach((b) => b.run());
     creepers.forEach((c) => c.run());
+    Event.run();
 };
 
 function initialize(): boolean {

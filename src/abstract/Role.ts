@@ -8,7 +8,6 @@ const debug = new Debug("role");
  * Superclass for all roles - various tasks given to creep.
  */
 export default abstract class Role implements Runnable {
-
     protected creep: Creeper;
 
     protected constructor(creep: Creeper) {

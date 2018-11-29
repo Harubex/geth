@@ -1,11 +1,11 @@
 import Role from "abstract/Role";
-import Creeper from "entity/Creeper";
+import Creeper, { CreeperMemory } from "entity/Creeper";
 import Debug from "util/Debug";
 import EnergySource from "entity/EnergySource";
 
 const debug = new Debug("role/harvester");
 
-export default class HarvesterRole extends Role {
+export default class Harvester extends Role {
 
     constructor(creep: Creeper) {
         super(creep);
@@ -24,5 +24,15 @@ export default class HarvesterRole extends Role {
                 this.creep.unload(RESOURCE_ENERGY);
             }
         }
+    }
+
+    private creepsOfRole(role: string) {
+        return Object.keys(Game.creeps).reduce((total, name) => {
+            const creep = Game.creeps[name];
+            if (creep && (creep.memory as CreeperMemory).role === role) {
+                total++;
+            }
+            return total;
+        }, 0);
     }
 }

@@ -73,6 +73,10 @@ export default class Creeper extends LivingObject<Creep> {
         }
     }
 
+    public build(site: ConstructionSite<BuildableStructureConstant>): CreepBuildReturnCode {
+        return this.instance.build(site);
+    }
+
     public harvest(source: Source | Mineral<MineralConstant>): CreepHarvestReturnCode {
         return this.instance.harvest(source);
     }
@@ -104,6 +108,10 @@ export default class Creeper extends LivingObject<Creep> {
         return this.instance.transfer(target, resourceType, amount);
     }
 
+    public repair(building: Structure<StructureConstant>) {
+        return this.instance.repair(building);
+    }
+
     public moveTo(position: RoomPosition | { pos: RoomPosition }, options?: MoveToOpts) {
         return this.instance.moveTo(position, options);
     }
@@ -114,6 +122,10 @@ export default class Creeper extends LivingObject<Creep> {
         });
     }
 }
+
+export type CreepBuildReturnCode =
+    OK | ERR_NOT_OWNER | ERR_BUSY | ERR_NOT_ENOUGH_RESOURCES | ERR_INVALID_TARGET |
+    ERR_NOT_IN_RANGE | ERR_TIRED | ERR_NO_BODYPART | ERR_RCL_NOT_ENOUGH;
 
 export type CreepDropCode = OK | ERR_NOT_OWNER | ERR_BUSY | ERR_NOT_ENOUGH_RESOURCES;
 export type CreepHarvestReturnCode = CreepActionReturnCode | ERR_NOT_FOUND | ERR_NOT_ENOUGH_RESOURCES;

@@ -4,7 +4,7 @@ import Creeper from "entity/Creeper";
 
 const debug = new Debug("role/courier", false);
 
-export default class CourierRole extends Role {
+export default class Courier extends Role {
 
     constructor(creep: Creeper) {
         super(creep);
@@ -37,8 +37,26 @@ export default class CourierRole extends Role {
                         this.creep.moveTo(tombstone);
                     }
                 } else {
-                    debug.info("No resources to pickup.");
-                    this.swapRole("harvester");
+                    const site = this.creep.position.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                    if (!site) {
+                        const targets = this.creep.room.find(FIND_STRUCTURES, {
+                            filter: (building) => building.hits < building.hitsMax
+                        });
+                        targets.sort((a, b) => a.hits - b.hits);
+                        if (targets.length > 0) {
+                            if (this.creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
+                                this.creep.moveTo(targets[0]);
+                            }
+                        } else {
+                            debug.info("No resources to pickup.");
+                            this.swapRole("harvester");
+                        }
+                    } else {
+                        debug.info("Courier is building.");
+                        if (this.creep.build(site) === ERR_NOT_IN_RANGE) {
+                            this.creep.moveTo(site);
+                        }
+                    }
                 }
             }
         } else {

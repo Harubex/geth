@@ -2,9 +2,10 @@ import LivingObject from "abstract/LivingObject";
 import Creeper, { CreeperMemory } from "entity/Creeper";
 import Profile from "util/Profiler";
 import Debug from "util/Debug";
-import { sortBy, uniqueId } from "lodash";
+import { sortBy, contains } from "lodash";
 import Events from "util/Event";
 import EventType from "util/EventType";
+import { uniqueId, uniqueName } from "util/Identifiers";
 
 const debug = new Debug("breeder");
 
@@ -28,28 +29,37 @@ export default class Breeder extends LivingObject<StructureSpawn> {
      * @param body The body to use for this creep.
      */
     public canCreateCreep(body: BodyPartConstant[]): boolean {
-        return this.instance.spawnCreep(body, uniqueId(), {dryRun: true}) === OK;
+        return this.instance.spawnCreep(body, uniqueId(), { dryRun: true }) === OK;
     }
 
     public createCreep(body: BodyPartConstant[], memory: CreeperMemory): void {
-        debug.info(`Spawning creep with role ${memory.role}.`);
-        const creepName = uniqueId(String(Game.time));
+        const creepName = uniqueName();
+        debug.info(`Total energy available: ${this.availableEnergy()}.`);
         const statusCode = this.instance.spawnCreep(sortBy(body), creepName, { memory });
         if (statusCode !== OK) {
             throw new Error(`Unable to create creep (error code ${statusCode}).`);
         }
-        Events.dispatch(EventType.creepSpawned, () => {
-            debug.info(`Creep spawned with name ${creepName}`);
-            return new Creeper(Game.creeps[creepName], memory);
-        }, 1 + body.length * CREEP_SPAWN_TIME);
+        debug.info(`Spawning creep with role ${memory.role}.`);
     }
 
     public run() {
-        const creepBody: BodyPartConstant[] = [MOVE, CARRY, WORK, CARRY];
-        if (this.shouldSpawnCreeps() && this.canCreateCreep(creepBody)) {
-            this.createCreep(creepBody, {
-                role: this.nextCreepType()
-            });
+        const spawning = this.instance.spawning;
+        if (spawning) {
+            debug.info(`${spawning.remainingTime} ticks until creep is ready.`);
+            // There's no 0 tick, defer it for 1 tick.
+            if (spawning.remainingTime === 1) {
+                Events.dispatch(EventType.creepSpawned, () => {
+                    debug.info(`Creep ${spawning.name} is ready.`);
+                    return new Creeper(Game.creeps[spawning.name]);
+                }, 1);
+            }
+        } else {
+            const creepBody: BodyPartConstant[] = [MOVE, CARRY, WORK, CARRY];
+            if (this.shouldSpawnCreeps() && this.canCreateCreep(creepBody)) {
+                this.createCreep(creepBody, {
+                    role: this.nextCreepType()
+                });
+            }
         }
     }
 
@@ -67,5 +77,12 @@ export default class Breeder extends LivingObject<StructureSpawn> {
             return total;
         }, 0);
         return (couriers === 0 && harvesters > 0) ? "courier" : "harvester";
+    }
+
+    public availableEnergy(): number {
+        const structs = this.instance.room.find(FIND_MY_STRUCTURES, {
+            filter: ({structureType}) => contains([STRUCTURE_SPAWN, STRUCTURE_EXTENSION], structureType)
+        }) as (StructureSpawn | StructureExtension)[];
+        return structs.reduce((total, struct) => total + struct.energy, 0);
     }
 }

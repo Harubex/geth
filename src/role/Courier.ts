@@ -1,6 +1,7 @@
 import Debug from "util/Debug";
 import Role from "abstract/Role";
 import Creeper from "entity/Creeper";
+import { first, sortBy } from "lodash";
 
 const debug = new Debug("role/courier", false);
 
@@ -62,6 +63,16 @@ export default class Courier extends Role {
         } else {
             if (this.shouldSpawnCreeps()) {
                 debug.info("Depositing at spawn.");
+                let extensions = this.creep.findStructures<StructureExtension>(STRUCTURE_EXTENSION);
+                extensions = sortBy(extensions, (ex) => {
+                    return ex.energy / ex.energyCapacity;
+                });
+                const emptiest = first(extensions);
+                if (emptiest.energy < emptiest.energyCapacity) {
+                    if (this.creep.transfer(emptiest, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        this.creep.moveTo(emptiest);
+                    }
+                }
                 const spawn = this.creep.position.findClosestByPath(FIND_MY_SPAWNS);
                 if (this.creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     this.creep.moveTo(spawn);

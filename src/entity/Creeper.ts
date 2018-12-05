@@ -116,10 +116,16 @@ export default class Creeper extends LivingObject<Creep> {
         return this.instance.moveTo(position, options);
     }
 
-    public findNearestStructure(...structureTypes: StructureConstant[]): AnyStructure {
+    public findNearestStructure<S extends AnyStructure>(...structureTypes: StructureConstant[]): S {
         return this.instance.pos.findClosestByPath(FIND_STRUCTURES as FIND_STRUCTURES, {
             filter: (structure: AnyStructure) => contains(structureTypes, structure.structureType)
-        });
+        }) as S;
+    }
+
+    public findStructures<S extends AnyStructure>(structureType: StructureConstant): S[] {
+        return this.instance.room.find(FIND_STRUCTURES, {
+            filter: (structure: AnyStructure) => structureType === structure.structureType
+        }) as S[];
     }
 }
 

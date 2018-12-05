@@ -3,7 +3,7 @@ import Debug from "util/Debug";
 import Breeder from "entity/Breeder";
 import { CpuEvent, CreepEvent, SpawnEvent } from "util/EventType";
 
-const debug = new Debug("events");
+const debug = new Debug("events", false);
 
 export default class Events { // TODO: add events to memory if possible.
 
@@ -39,13 +39,12 @@ export default class Events { // TODO: add events to memory if possible.
         const events = Events.eventQueue;
         Events.eventQueue = [];
         if (events.length > 0) {
-            debug.log(`Processing events: ${events.length} ${Events.eventQueue.length}`);
+            debug.log(`Processing events - total events (${events.length}), queue size (${Events.eventQueue.length}).`);
         }
         events.forEach(({event, data, delay}) => {
-            debug.log(event, (Events.listeners[event] || []).length);
             if (Events.listeners[event]) {
                 if (Game.time < delay) {
-                    debug.info(`Readding event - time ${Game.time} of ${delay}`);
+                    debug.info(`Re-adding event - time ${Game.time} of ${delay}`);
                     Events.eventQueue.push({event, data, delay});
                 } else {
                     Events.listeners[event].forEach((listener) => {
